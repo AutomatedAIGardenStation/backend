@@ -1,5 +1,4 @@
 import serial
-import asyncio
 from typing import Dict, Optional
 
 class SerialManager:

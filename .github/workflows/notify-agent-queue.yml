@@ -7,7 +7,7 @@ on:
 jobs:
   dispatch:
     if: github.event.label.name == 'agent-queue'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Dispatch agent-issue-created to pipeline-orchestrator
         uses: actions/github-script@v7

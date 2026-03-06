@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
-from datetime import datetime, timedelta
+from fastapi import APIRouter
 
 router = APIRouter(prefix="/sensors", tags=["sensors"])
 

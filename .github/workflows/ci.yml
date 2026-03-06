@@ -13,7 +13,10 @@ on:
 jobs:
   test:
     name: Test (Python ${{ matrix.python-version }})
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    defaults:
+      run:
+        shell: pwsh
     strategy:
       fail-fast: false
       matrix:
@@ -26,13 +29,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Cache pip packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: pip-backend-${{ matrix.python-version }}-${{ hashFiles('requirements.txt') }}
-          restore-keys: pip-backend-${{ matrix.python-version }}-
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
@@ -48,12 +45,7 @@ jobs:
         continue-on-error: true   # warn only until full type coverage is reached
 
       - name: Run tests with coverage
-        run: |
-          pytest tests/ -v \
-            --cov=app \
-            --cov-report=term-missing \
-            --cov-report=xml:coverage.xml \
-            --tb=short
+        run: pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=xml:coverage.xml --tb=short
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
@@ -65,7 +57,10 @@ jobs:
   # ── Smoke test (dry-run) ────────────────────────────────────────────────────
   dry-run:
     name: Smoke – dry run
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    defaults:
+      run:
+        shell: pwsh
     needs: test
     steps:
       - uses: actions/checkout@v4
@@ -84,7 +79,10 @@ jobs:
   # ── Notify ci-cd repo ──────────────────────────────────────────────────────
   notify-ci-cd:
     name: Notify GardenStation-ci-cd
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    defaults:
+      run:
+        shell: pwsh
     needs: [test, dry-run]
     if: always()
     steps:
