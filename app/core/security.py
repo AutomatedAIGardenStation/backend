@@ -1,10 +1,9 @@
 import hashlib
 import json
 from enum import Enum
-from typing import Optional, Callable
+from typing import Callable
 from pydantic import BaseModel
-from fastapi import Request, HTTPException, Security, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Request, HTTPException, Depends
 from app.config import settings
 
 class Role(str, Enum):
@@ -15,17 +14,20 @@ class User(BaseModel):
     username: str
     role: Role
 
-security = HTTPBearer(auto_error=False)
-
-async def get_current_user(
-    request: Request,
-    credentials: Optional[HTTPAuthorizationCredentials] = Security(security)
-) -> User:
+async def get_current_user(request: Request) -> User:
     """
     Mock dependency to retrieve the current user based on headers for initial RBAC setup.
     In a real app, this would verify JWT tokens against DB or an identity provider.
+    In production, X-Mock-Role headers are ignored and all requests are rejected until
+    real JWT authentication is implemented.
     """
-    # For testing and initial setup, allow passing a role via a custom header or fallback to USER
+    if settings.environment == "production":
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required. JWT authentication is not yet configured.",
+        )
+
+    # In non-production environments, allow passing a role via a custom header or fallback to USER
     role_header = request.headers.get("X-Mock-Role", "user").lower()
     if role_header == "admin":
         role = Role.ADMIN
