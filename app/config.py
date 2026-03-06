@@ -13,28 +13,16 @@ CONFIG_YAML_PATH = Path("app/config/config.yaml")
 class YamlConfigSettingsSource(PydanticBaseSettingsSource):
     """
     A simple settings source that loads variables from a YAML file.
+    The YAML file is parsed once on initialization and cached for all
+    subsequent field lookups to avoid repeated disk I/O.
     """
-    def get_field_value(
-        self, field: Field, field_name: str
-    ) -> Tuple[Any, str, bool]:
-        if not CONFIG_YAML_PATH.exists():
-            return None, field_name, False
 
-        try:
-            with open(CONFIG_YAML_PATH, "r", encoding="utf-8") as f:
-                yaml_data = yaml.safe_load(f) or {}
+    def __init__(self, settings_cls: Type[BaseSettings]) -> None:
+        super().__init__(settings_cls)
+        self._yaml_data: Dict[str, Any] = self._load_yaml()
 
-            field_value = yaml_data.get(field_name)
-            return field_value, field_name, False
-        except Exception:
-            return None, field_name, False
-
-    def prepare_field_value(
-        self, field_name: str, field: Field, value: Any, value_is_complex: bool
-    ) -> Any:
-        return value
-
-    def __call__(self) -> Dict[str, Any]:
+    @staticmethod
+    def _load_yaml() -> Dict[str, Any]:
         if not CONFIG_YAML_PATH.exists():
             return {}
         try:
@@ -42,6 +30,20 @@ class YamlConfigSettingsSource(PydanticBaseSettingsSource):
                 return yaml.safe_load(f) or {}
         except Exception:
             return {}
+
+    def get_field_value(
+        self, field: Field, field_name: str
+    ) -> Tuple[Any, str, bool]:
+        field_value = self._yaml_data.get(field_name)
+        return field_value, field_name, False
+
+    def prepare_field_value(
+        self, field_name: str, field: Field, value: Any, value_is_complex: bool
+    ) -> Any:
+        return value
+
+    def __call__(self) -> Dict[str, Any]:
+        return self._yaml_data
 
 class Settings(BaseSettings):
     app_name: str = "Garden Station Backend"
