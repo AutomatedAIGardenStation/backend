@@ -1,0 +1,37 @@
+# Python 3.9+ (backend)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv/
+.conda/
+*.egg-info/
+*.egg
+dist/
+build/
+eggs/
+
+# Testing & quality (pytest, mypy, ruff)
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+*.cover
+coverage.xml
+
+# Trained/serialized models (keep metadata and structure)
+models/*.pkl
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
