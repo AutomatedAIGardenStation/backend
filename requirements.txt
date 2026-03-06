@@ -7,3 +7,4 @@ pytest
 pydantic-settings
 pyyaml
 pytest-asyncio
+email-validator
