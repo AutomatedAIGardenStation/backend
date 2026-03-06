@@ -6,11 +6,8 @@ from app.core.security import (
     get_current_user,
     require_role,
     verify_config_drift,
-    compute_config_hash,
-    INITIAL_CONFIG_HASH,
 )
 from app.config import settings
-from fastapi import Request
 
 @pytest.mark.asyncio
 async def test_get_current_user_admin_header():
@@ -64,7 +61,6 @@ async def test_verify_config_drift_success():
 @pytest.mark.asyncio
 async def test_verify_config_drift_failure(monkeypatch):
     # Mutating the configuration to simulate drift
-    original_app_name = settings.app_name
     monkeypatch.setattr(settings, "app_name", "Hacked App")
 
     with pytest.raises(HTTPException) as excinfo:

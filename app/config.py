@@ -1,8 +1,7 @@
-import os
 import yaml
 from pathlib import Path
 from typing import Tuple, Type, Any, Dict, List
-from pydantic import Field, AnyHttpUrl, EmailStr, validator
+from pydantic import Field
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,

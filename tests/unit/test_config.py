@@ -2,8 +2,6 @@ import os
 import pytest
 from pydantic import ValidationError
 from app.config import Settings
-import tempfile
-import yaml
 
 def test_settings_default_fallback():
     # If no env vars or config.yaml is found, it should use the defaults
