@@ -1,12 +1,8 @@
 import pytest
 import json
-import shutil
-from pathlib import Path
-from typing import Dict, Any
 
 from app.services.plugin_loader import PluginLoader
 from app.services.plugin_base import PluginBase
-from app.models.plugin import PluginManifest
 
 @pytest.fixture
 def temp_plugin_dir(tmp_path):
