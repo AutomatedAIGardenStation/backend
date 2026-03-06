@@ -1,0 +1,7 @@
+app_name: "Garden Station Backend"
+environment: "development"
+debug: false
+# Change in production:
+# secret_key: "your-super-secret-key"
+# database_url: "postgresql+asyncpg://user:pass@localhost/db"
+# admin_emails: ["admin@example.com"]
