@@ -4,3 +4,6 @@ httpx
 pyserial
 sqlalchemy
 pytest
+pydantic-settings
+pyyaml
+pytest-asyncio
