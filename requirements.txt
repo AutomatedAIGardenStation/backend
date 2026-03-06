@@ -8,3 +8,5 @@ pydantic-settings
 pyyaml
 pytest-asyncio
 email-validator
+alembic
+aiosqlite

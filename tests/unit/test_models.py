@@ -1,4 +1,3 @@
-import pytest
 from datetime import datetime, timezone
 from app.models.user import User, Role
 from app.models.system import SystemConfig

@@ -1,7 +1,11 @@
+from typing import TYPE_CHECKING
 from datetime import datetime, timezone
 from sqlalchemy import ForeignKey, Float, String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from app.models.plant import Plant
 
 class SensorReading(Base):
     """Time-series table for sensor logs."""

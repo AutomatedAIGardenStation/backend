@@ -1,7 +1,13 @@
+from typing import TYPE_CHECKING
 from datetime import datetime, timezone
 from sqlalchemy import String, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from app.models.chamber import Chamber
+    from app.models.sensor import SensorReading
+    from app.models.harvest import HarvestQueue
 
 class Plant(Base):
     __tablename__ = "plants"
