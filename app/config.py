@@ -40,12 +40,33 @@ def _load_yaml_config() -> Dict[str, Any]:
 class YamlConfigSettingsSource(PydanticBaseSettingsSource):
     """
     A simple settings source that loads variables from a YAML file.
+    The YAML file is parsed once on initialization and cached for all
+    subsequent field lookups to avoid repeated disk I/O.
     """
     def get_field_value(
         self, field: Field, field_name: str
     ) -> Tuple[Any, str, bool]:
         yaml_data = _load_yaml_config()
         field_value = yaml_data.get(field_name)
+
+    def __init__(self, settings_cls: Type[BaseSettings]) -> None:
+        super().__init__(settings_cls)
+        self._yaml_data: Dict[str, Any] = self._load_yaml()
+
+    @staticmethod
+    def _load_yaml() -> Dict[str, Any]:
+        if not CONFIG_YAML_PATH.exists():
+            return {}
+        try:
+            with open(CONFIG_YAML_PATH, "r", encoding="utf-8") as f:
+                return yaml.safe_load(f) or {}
+        except Exception:
+            return {}
+
+    def get_field_value(
+        self, field: Field, field_name: str
+    ) -> Tuple[Any, str, bool]:
+        field_value = self._yaml_data.get(field_name)
         return field_value, field_name, False
 
     def prepare_field_value(
