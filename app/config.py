@@ -1,3 +1,4 @@
+import logging
 import yaml
 from pathlib import Path
 from typing import Tuple, Type, Any, Dict, List
@@ -10,6 +11,32 @@ from pydantic_settings import (
 
 CONFIG_YAML_PATH = Path("app/config/config.yaml")
 
+logger = logging.getLogger(__name__)
+
+
+def _load_yaml_config() -> Dict[str, Any]:
+    """Load and parse the YAML config file.
+
+    Returns an empty dict if the file does not exist.
+    Raises RuntimeError with a descriptive message if the file exists
+    but cannot be read (e.g. permission denied) or parsed (e.g. syntax error),
+    so that the application fails fast rather than starting with unsafe defaults.
+    """
+    if not CONFIG_YAML_PATH.exists():
+        return {}
+    try:
+        with open(CONFIG_YAML_PATH, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
+    except OSError as exc:
+        raise RuntimeError(
+            f"Configuration file '{CONFIG_YAML_PATH}' could not be read: {exc}"
+        ) from exc
+    except yaml.YAMLError as exc:
+        raise RuntimeError(
+            f"Configuration file '{CONFIG_YAML_PATH}' contains invalid YAML: {exc}"
+        ) from exc
+
+
 class YamlConfigSettingsSource(PydanticBaseSettingsSource):
     """
     A simple settings source that loads variables from a YAML file.
@@ -17,17 +44,9 @@ class YamlConfigSettingsSource(PydanticBaseSettingsSource):
     def get_field_value(
         self, field: Field, field_name: str
     ) -> Tuple[Any, str, bool]:
-        if not CONFIG_YAML_PATH.exists():
-            return None, field_name, False
-
-        try:
-            with open(CONFIG_YAML_PATH, "r", encoding="utf-8") as f:
-                yaml_data = yaml.safe_load(f) or {}
-
-            field_value = yaml_data.get(field_name)
-            return field_value, field_name, False
-        except Exception:
-            return None, field_name, False
+        yaml_data = _load_yaml_config()
+        field_value = yaml_data.get(field_name)
+        return field_value, field_name, False
 
     def prepare_field_value(
         self, field_name: str, field: Field, value: Any, value_is_complex: bool
@@ -35,13 +54,7 @@ class YamlConfigSettingsSource(PydanticBaseSettingsSource):
         return value
 
     def __call__(self) -> Dict[str, Any]:
-        if not CONFIG_YAML_PATH.exists():
-            return {}
-        try:
-            with open(CONFIG_YAML_PATH, "r", encoding="utf-8") as f:
-                return yaml.safe_load(f) or {}
-        except Exception:
-            return {}
+        return _load_yaml_config()
 
 class Settings(BaseSettings):
     app_name: str = "Garden Station Backend"
