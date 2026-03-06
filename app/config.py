@@ -1,7 +1,8 @@
+import os
 import logging
 import yaml
 from pathlib import Path
-from typing import Tuple, Type, Any, Dict, List
+from typing import Tuple, Type, Any, Dict, List, Literal
 from pydantic import Field
 from pydantic_settings import (
     BaseSettings,
@@ -9,7 +10,13 @@ from pydantic_settings import (
     SettingsConfigDict,
 )
 
-CONFIG_YAML_PATH = Path("app/config/config.yaml")
+logger = logging.getLogger(__name__)
+
+CONFIG_YAML_PATH = (
+    Path(os.environ["APP_CONFIG_YAML_PATH"])
+    if "APP_CONFIG_YAML_PATH" in os.environ
+    else Path(__file__).resolve().parent / "config" / "config.yaml"
+)
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +47,14 @@ def _load_yaml_config() -> Dict[str, Any]:
 class YamlConfigSettingsSource(PydanticBaseSettingsSource):
     """
     A simple settings source that loads variables from a YAML file.
+    Parses the file once at construction and caches the result.
+    """
+    def __init__(self, settings_cls: Type[BaseSettings]):
+        super().__init__(settings_cls)
+        self._yaml_data: Dict[str, Any] = self._load_yaml()
+
+    def _load_yaml(self) -> Dict[str, Any]:
+      """
     The YAML file is parsed once on initialization and cached for all
     subsequent field lookups to avoid repeated disk I/O.
     """
@@ -60,8 +75,11 @@ class YamlConfigSettingsSource(PydanticBaseSettingsSource):
         try:
             with open(CONFIG_YAML_PATH, "r", encoding="utf-8") as f:
                 return yaml.safe_load(f) or {}
-        except Exception:
-            return {}
+        except Exception as exc:
+            logger.error("Failed to parse YAML config file '%s': %s", CONFIG_YAML_PATH, exc)
+            raise RuntimeError(
+                f"Cannot parse configuration file '{CONFIG_YAML_PATH}': {exc}"
+            ) from exc
 
     def get_field_value(
         self, field: Field, field_name: str
@@ -79,7 +97,9 @@ class YamlConfigSettingsSource(PydanticBaseSettingsSource):
 
 class Settings(BaseSettings):
     app_name: str = "Garden Station Backend"
-    environment: str = Field(default="development", description="Environment mode: development, staging, production")
+    environment: Literal["development", "staging", "production"] = Field(
+        default="development", description="Environment mode: development, staging, production"
+    )
     secret_key: str = Field(default="default-unsafe-secret-key-change-in-production", min_length=32, description="Secret key for application security")
     database_url: str = Field(default="sqlite+aiosqlite:///./test.db", description="Database connection URL")
     admin_emails: List[str] = Field(default_factory=list, description="List of administrator email addresses")
