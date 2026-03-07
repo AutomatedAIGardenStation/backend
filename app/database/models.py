@@ -11,3 +11,16 @@ from app.models import (
     MLPrediction,
     HarvestQueue
 )
+
+__all__ = [
+    "Base",
+    "User",
+    "Role",
+    "SystemConfig",
+    "Chamber",
+    "Plant",
+    "SensorReading",
+    "ActuatorLog",
+    "MLPrediction",
+    "HarvestQueue",
+]
