@@ -20,10 +20,12 @@ async def lifespan(app: FastAPI):
         else:
             logger.warning("Using default unsafe secret key. This is not recommended outside development.")
 
-    # 2. Check Database URL exists
-    if not settings.database_url:
-        logger.error("Missing database URL configuration.")
-        raise ValueError("database_url must be provided.")
+    # 2. Prevent using SQLite in production
+    if settings.environment == "production" and str(settings.database_url).lower().startswith("sqlite"):
+        logger.error("SQLite database URL detected in production environment. Refusing to start.")
+        raise ValueError(
+            "Invalid database_url for production environment. Configure a production-grade database."
+        )
 
     # 3. Ensure configuration hasn't drifted since load time (Zero-trust check)
     current_hash = compute_config_hash()
