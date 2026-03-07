@@ -35,6 +35,10 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown actions could go here
     logger.info("Shutting down Garden Station Backend...")
+    from app.services.ai_client import AIClient
+    from app.services.ml_client import MLClient
+    await AIClient.close()
+    await MLClient.close()
 
 app = FastAPI(
     title="Garden Station Backend",
