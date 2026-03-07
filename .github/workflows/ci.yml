@@ -78,13 +78,13 @@ jobs:
 
   # ── Notify ci-cd repo ──────────────────────────────────────────────────────
   notify-ci-cd:
-    name: Notify GardenStation-ci-cd
+    name: Notify pipeline-orchestrator
     runs-on: self-hosted
     defaults:
       run:
         shell: pwsh
     needs: [test, dry-run]
-    if: always()
+    if: github.event_name == 'pull_request' && always()
     steps:
       - name: Dispatch backend-changed
         uses: actions/github-script@v7
