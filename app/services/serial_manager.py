@@ -1,6 +1,6 @@
 import serial
 import asyncio
-from typing import Dict, Optional, Any, Callable, Awaitable, List
+from typing import Dict, Optional, Any
 import logging
 import time
 import uuid
@@ -158,7 +158,7 @@ class SerialManager:
                     await self._send_raw(controller_id, item.command)
                     item.sent_time = time.time()
                     logger.warning(f"Retrying command {item.correlation_id} to {controller_id}")
-                except Exception as e:
+                except Exception:
                     pass
 
             try:

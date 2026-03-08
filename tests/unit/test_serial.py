@@ -1,8 +1,7 @@
 import pytest
 import asyncio
-import json
 from unittest.mock import MagicMock, patch
-from app.services.serial_manager import SerialManager, ConnectionConfig
+from app.services.serial_manager import SerialManager
 
 @pytest.fixture
 def mock_serial():

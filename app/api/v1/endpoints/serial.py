@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
-from typing import Dict, Any, List
 import asyncio
-from app.schemas.serial import CommandRequest, ConnectionRequest, SerialEvent
+from app.schemas.serial import CommandRequest, ConnectionRequest
 from app.services.serial_manager import SerialManager
 from app.config import settings
 
