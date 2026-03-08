@@ -46,6 +46,9 @@ app = FastAPI(
     dependencies=[Depends(verify_config_drift)]
 )
 
+from app.api.v1.endpoints import serial
+app.include_router(serial.router, prefix="/api/v1")
+
 @app.get("/")
 async def read_root():
     return {"status": "Backend Orchestrator Running"}
