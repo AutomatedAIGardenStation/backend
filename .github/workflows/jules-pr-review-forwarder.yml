@@ -113,6 +113,11 @@ jobs:
               return all;
             }
 
+            function proxyStatusHint(status) {
+              if (status === 405) return ' (405 Method Not Allowed: proxy must allow POST for /v1alpha/sessions/{id}:sendMessage)';
+              return '';
+            }
+
             async function callProxy(method, path, body = undefined) {
               const headers = { 'X-Proxy-Secret': proxySecret };
               const request = { method, headers };
@@ -374,12 +379,12 @@ jobs:
                     'Failed to forward PR review feedback to Jules session.',
                     `LinkedIssue: #${linkedIssueNumber}`,
                     `JulesSessionId: ${sessionId}`,
-                    `HTTP status: ${sendResp.status}`,
+                    `HTTP status: ${sendResp.status}${proxyStatusHint(sendResp.status)}`,
                     `JulesReviewForwardToken: ${forwardToken}`
                   ].join('\n')
                 });
               });
-              core.setFailed(`Failed to send feedback to Jules session (${sendResp.status}).`);
+              core.setFailed(`Failed to send feedback to Jules session (${sendResp.status})${proxyStatusHint(sendResp.status)}.`);
               return;
             }
 

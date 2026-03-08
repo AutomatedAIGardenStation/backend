@@ -72,6 +72,12 @@ jobs:
               }
             }
 
+            // Proxy must allow: GET /v1alpha/sessions/{id}, GET .../activities, POST ...:approvePlan, POST ...:sendMessage
+            function proxyStatusHint(status) {
+              if (status === 405) return ' (405 Method Not Allowed: proxy must allow GET and POST for these paths)';
+              return '';
+            }
+
             async function callProxy(method, path, body = undefined) {
               const headers = { 'X-Proxy-Secret': proxySecret };
               const request = { method, headers };
@@ -282,7 +288,7 @@ jobs:
               const encodedId = encodeURIComponent(sessionId);
               const sessionResp = await callProxy('GET', `/v1alpha/sessions/${encodedId}`);
               if (!sessionResp.ok) {
-                core.warning(`Issue #${issue.number}: failed to read Jules session ${sessionId} (HTTP ${sessionResp.status}).`);
+                core.warning(`Issue #${issue.number}: failed to read Jules session ${sessionId} (HTTP ${sessionResp.status})${proxyStatusHint(sessionResp.status)}.`);
                 continue;
               }
 
@@ -312,7 +318,7 @@ jobs:
                         '',
                         '**Jules requires plan approval (auto-approve failed)**',
                         `JulesSessionId: ${sessionId}`,
-                        `HTTP status: ${approveResp.status}`,
+                        `HTTP status: ${approveResp.status}${proxyStatusHint(approveResp.status)}`,
                         `ApprovalToken: ${approvalToken}`
                       ]);
                     }
@@ -459,7 +465,7 @@ jobs:
                         '**Failed to send reply to Jules session**',
                         `JulesSessionId: ${sessionId}`,
                         `ReplySource: ${pendingReply.source}`,
-                        `HTTP status: ${sendResp.status}`,
+                        `HTTP status: ${sendResp.status}${proxyStatusHint(sendResp.status)}`,
                         `FailureToken: ${failureToken}`
                       ]);
                     }
@@ -523,7 +529,7 @@ jobs:
                         '**Failed to auto-continue Jules session**',
                         `JulesSessionId: ${sessionId}`,
                         failureReason ? `Failure: ${failureReason}` : '',
-                        `HTTP status: ${continueResp.status}`,
+                        `HTTP status: ${continueResp.status}${proxyStatusHint(continueResp.status)}`,
                         `ContinueToken: ${continueToken}`
                       ]);
                     }
