@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from app.config import settings
 from app.core.security import INITIAL_CONFIG_HASH, compute_config_hash, verify_config_drift
+from app.api.v1.endpoints import serial
 
 logger = logging.getLogger("garden_station")
 logging.basicConfig(level=logging.INFO)
@@ -47,6 +48,8 @@ app = FastAPI(
     lifespan=lifespan,
     dependencies=[Depends(verify_config_drift)]
 )
+
+app.include_router(serial.router, prefix="/api/v1")
 
 @app.get("/")
 async def read_root():

@@ -49,7 +49,7 @@ class YamlConfigSettingsSource(PydanticBaseSettingsSource):
     A simple settings source that loads variables from a YAML file.
     Parses the file once at construction and caches the result.
     """
-    def __init__(self, settings_cls: Type[BaseSettings]):
+    def __init__(self, settings_cls: Type[BaseSettings]) -> None:
         super().__init__(settings_cls)
         self._yaml_data: Dict[str, Any] = self._load_yaml()
 
