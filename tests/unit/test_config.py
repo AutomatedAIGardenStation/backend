@@ -2,12 +2,12 @@ import os
 import pytest
 from unittest.mock import patch
 from pydantic import ValidationError
-import app.config
 from app.config import Settings, _load_yaml_config
 
 def test_settings_default_fallback(monkeypatch, tmp_path):
+    import app.config as config_module
     # Point CONFIG_YAML_PATH to a non-existent path to truly test fallback behavior
-    monkeypatch.setattr(app.config, "CONFIG_YAML_PATH", tmp_path / "nonexistent.yaml")
+    monkeypatch.setattr(config_module, "CONFIG_YAML_PATH", tmp_path / "nonexistent.yaml")
     settings = Settings()
     assert settings.app_name == "Garden Station Backend"
     assert settings.environment == "development"

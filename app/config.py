@@ -55,6 +55,10 @@ class YamlConfigSettingsSource(PydanticBaseSettingsSource):
 
     @staticmethod
     def _load_yaml() -> Dict[str, Any]:
+        """
+        The YAML file is parsed once on initialization and cached for all
+        subsequent field lookups to avoid repeated disk I/O.
+        """
         if not CONFIG_YAML_PATH.exists():
             return {}
         try:

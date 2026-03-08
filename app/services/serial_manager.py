@@ -1,3 +1,4 @@
+import asyncio
 import serial
 import asyncio
 from typing import Dict, Optional, Any
@@ -31,10 +32,9 @@ class SerialManager:
         self.connection_configs: Dict[str, ConnectionConfig] = {}
         self.config = config
 
-        self.is_running = False
-        self.connection_tasks: Dict[str, asyncio.Task] = {}
-        self.reader_tasks: Dict[str, asyncio.Task] = {}
-        self.queue_tasks: Dict[str, asyncio.Task] = {}
+    async def connect(self, controller_id: str, port: str, baudrate: int = 9600):
+        conn = await asyncio.to_thread(serial.Serial, port, baudrate, timeout=1)
+        self.connections[controller_id] = conn
 
         self.last_heartbeats: Dict[str, float] = {}
         self.last_sent_heartbeat: Dict[str, float] = {}
@@ -280,3 +280,17 @@ class SerialManager:
     async def read_event(self, controller_id: str) -> Optional[str]:
         # Kept for backward compatibility, though events are now pushed to queue
         return None
+        def write_cmd():
+            conn.write(f"{command}\n".encode())
+
+        await asyncio.to_thread(write_cmd)
+
+    async def read_event(self, controller_id: str) -> Optional[str]:
+        conn = self.connections.get(controller_id)
+
+        def check_and_read():
+            if conn and conn.in_waiting:
+                return conn.readline().decode().strip()
+            return None
+
+        return await asyncio.to_thread(check_and_read)
