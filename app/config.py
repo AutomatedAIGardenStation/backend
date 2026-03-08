@@ -53,23 +53,12 @@ class YamlConfigSettingsSource(PydanticBaseSettingsSource):
         super().__init__(settings_cls)
         self._yaml_data: Dict[str, Any] = self._load_yaml()
 
-    def _load_yaml(self) -> Dict[str, Any]:
-      """
-    The YAML file is parsed once on initialization and cached for all
-    subsequent field lookups to avoid repeated disk I/O.
-    """
-    def get_field_value(
-        self, field: Field, field_name: str
-    ) -> Tuple[Any, str, bool]:
-        yaml_data = _load_yaml_config()
-        field_value = yaml_data.get(field_name)
-
-    def __init__(self, settings_cls: Type[BaseSettings]) -> None:
-        super().__init__(settings_cls)
-        self._yaml_data: Dict[str, Any] = self._load_yaml()
-
     @staticmethod
     def _load_yaml() -> Dict[str, Any]:
+        """
+        The YAML file is parsed once on initialization and cached for all
+        subsequent field lookups to avoid repeated disk I/O.
+        """
         if not CONFIG_YAML_PATH.exists():
             return {}
         try:
